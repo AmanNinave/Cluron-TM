@@ -1,20 +1,8 @@
-/*
-  Warnings:
-
-  - The primary key for the `User` table will be changed. If it partially fails, the table could be left without primary key constraint.
-  - You are about to drop the `Post` table. If the table is not empty, all the data it contains will be lost.
-  - Added the required column `country` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `industryType` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `role` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `updatedAt` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Made the column `name` on table `User` required. This step will fail if there are existing NULL values in that column.
-
-*/
 -- CreateEnum
 CREATE TYPE "AccessLevel" AS ENUM ('OWNER', 'MEMBER', 'VIEWER');
 
 -- CreateEnum
-CREATE TYPE "TaskStatus" AS ENUM ('TODO', 'IN_PROGRESS', 'COMPLETED', 'IN_REVIEW', 'BACKLOG');
+CREATE TYPE "TaskStatus" AS ENUM ('TODO', 'IN_PROGRESS', 'COMPLETED', 'IN_REVIEW', 'BACKLOG', 'BLOCKED');
 
 -- CreateEnum
 CREATE TYPE "TaskPriority" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
@@ -28,27 +16,22 @@ CREATE TYPE "SubscriptionPlan" AS ENUM ('FREE', 'PRO', 'ENTERPRISE');
 -- CreateEnum
 CREATE TYPE "SubscriptionStatus" AS ENUM ('ACTIVE', 'CANCELLED', 'EXPIRED', 'PAST_DUE');
 
--- DropForeignKey
-ALTER TABLE "Post" DROP CONSTRAINT "Post_authorId_fkey";
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "about" TEXT,
+    "industryType" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+    "country" TEXT NOT NULL,
+    "image" TEXT,
+    "onboardingCompleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
--- AlterTable
-ALTER TABLE "User" DROP CONSTRAINT "User_pkey",
-ADD COLUMN     "about" TEXT,
-ADD COLUMN     "country" TEXT NOT NULL,
-ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN     "image" TEXT,
-ADD COLUMN     "industryType" TEXT NOT NULL,
-ADD COLUMN     "onboardingCompleted" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "role" TEXT NOT NULL,
-ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL,
-ALTER COLUMN "id" DROP DEFAULT,
-ALTER COLUMN "id" SET DATA TYPE TEXT,
-ALTER COLUMN "name" SET NOT NULL,
-ADD CONSTRAINT "User_pkey" PRIMARY KEY ("id");
-DROP SEQUENCE "User_id_seq";
-
--- DropTable
-DROP TABLE "Post";
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Workspace" (
@@ -184,13 +167,16 @@ CREATE TABLE "Subscription" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Workspace_inviteCode_key" ON "Workspace"("inviteCode");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "WorkspaceMember_userId_workspaceId_key" ON "WorkspaceMember"("userId", "workspaceId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Project_workspaceId_key" ON "Project"("workspaceId");
+CREATE INDEX "Project_workspaceId_idx" ON "Project"("workspaceId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ProjectAccess_workspaceMemberId_projectId_key" ON "ProjectAccess"("workspaceMemberId", "projectId");
