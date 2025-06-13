@@ -12,7 +12,12 @@ import { truncateSync } from "fs";
 export const createNewWorkspace = async (data: CreateWorkspaceDataType) => {
   try {
     const { user } = await userRequired();
-
+    if (!user) {
+      return {
+        status: 401,
+        message: "User not authenticated",
+      };
+    }
     const validatedData = workspaceSchema.parse(data);
 
     const res = await db.workspace.create({
@@ -46,7 +51,9 @@ export const updateWorkspace = async (
   data: CreateWorkspaceDataType
 ) => {
   const { user } = await userRequired();
-
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
   const validatedData = workspaceSchema.parse(data);
 
   const isUserAMember = await db.workspaceMember.findUnique({
@@ -75,7 +82,9 @@ export const updateWorkspace = async (
 
 export const resetWorkspaceInviteCode = async (workspaceId: string) => {
   const { user } = await userRequired();
-
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
   const isUserAMember = await db.workspaceMember.findUnique({
     where: {
       userId_workspaceId: {
@@ -98,7 +107,9 @@ export const resetWorkspaceInviteCode = async (workspaceId: string) => {
 };
 export const deleteWorkspace = async (workspaceId: string) => {
   const { user } = await userRequired();
-
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
   const isUserAMember = await db.workspaceMember.findUnique({
     where: {
       userId_workspaceId: {
@@ -128,7 +139,9 @@ export const removeUserFromWorkspace = async (
   workspaceMemberId: string
 ) => {
   const { user } = await userRequired();
-
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
   const isUserAMember = await db.workspaceMember.findUnique({
     where: {
       userId_workspaceId: {
@@ -170,7 +183,9 @@ export const updateUserAccessLevel = async (
   accessLevel: $Enums.AccessLevel
 ) => {
   const { user } = await userRequired();
-
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
   const isUserAMember = await db.workspaceMember.findUnique({
     where: {
       userId_workspaceId: {
@@ -202,7 +217,9 @@ export const updateProjectAccess = async (
   projectIds: string[]
 ) => {
   const { user } = await userRequired();
-
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
   const isUserAMember = await db.workspaceMember.findUnique({
     where: {
       userId_workspaceId: {

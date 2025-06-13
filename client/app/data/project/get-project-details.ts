@@ -8,7 +8,13 @@ export const getProjectDetails = async (
 ) => {
   try {
     const { user } = await userRequired();
-
+    if (!user) {
+      return {
+        success: false,
+        error: true,
+        message: "User not authenticated",
+      };
+    }
     const [isUserMember, totalWorkspaceMembers] = await Promise.all([
       db.workspaceMember.findUnique({
         where: {

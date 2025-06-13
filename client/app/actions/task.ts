@@ -12,7 +12,14 @@ export const createNewTask = async (
   workspaceId: string
 ) => {
   const { user } = await userRequired();
-
+  if (!user) {
+    return {
+      success: false,
+      error: true,
+      message: "User not authenticated",
+      status: 401,
+    };
+  }
   const validatedData = taskFormSchema.parse(data);
 
   const isUserMember = await db.workspaceMember.findUnique({
@@ -98,6 +105,9 @@ export const updateTask = async (
   workspaceId: string
 ) => {
   const { user } = await userRequired();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
 
   const validatedData = taskFormSchema.parse(data);
 

@@ -4,7 +4,14 @@ import { userRequired } from "./is-user-authenticated";
 export const getUserById = async () => {
   try {
     const { user } = await userRequired();
-
+    if (!user) {
+      return {
+        success: false,
+        error: true,
+        message: "User not authenticated",
+        status: 401,
+      };
+    }
     const data = await db.user.findUnique({
       where: { id: user.id },
     });

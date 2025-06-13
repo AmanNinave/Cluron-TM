@@ -4,7 +4,14 @@ import { userRequired } from "../user/is-user-authenticated";
 export const getWorkspaceMembers = async (workspaceId: string) => {
   try {
     const { user } = await userRequired();
-
+    if (!user) {
+      return {
+        success: false,
+        error: true,
+        message: "User not authenticated",
+        status: 401,
+      };
+    }
     const isUserMember = await db.workspaceMember.findUnique({
       where: {
         userId_workspaceId: {

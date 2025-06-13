@@ -7,7 +7,13 @@ export const getWorkspaceProjectsByWorkspaceId = async (
 ) => {
   try {
     const { user } = await userRequired();
-
+    if (!user) {
+      return {
+        success: false,
+        error: true,
+        message: "User not authenticated",
+      };
+    }
     const isUserMember = await db.workspaceMember.findUnique({
       where: {
         userId_workspaceId: {

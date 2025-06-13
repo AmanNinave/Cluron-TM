@@ -3,7 +3,9 @@ import { userRequired } from "../user/is-user-authenticated";
 
 export const getMyTasks = async () => {
   const { user } = await userRequired();
-
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
   const tasks = await db.task.findMany({
     where: {
       assigneeId: user.id,

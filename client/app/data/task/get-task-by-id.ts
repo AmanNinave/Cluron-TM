@@ -7,7 +7,9 @@ export const getTaskById = async (
   projectId: string
 ) => {
   const { user } = await userRequired();
-
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
   const isUserMember = await db.workspaceMember.findUnique({
     where: {
       userId_workspaceId: {

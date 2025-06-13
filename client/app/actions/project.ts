@@ -8,6 +8,30 @@ import { userRequired } from "../data/user/is-user-authenticated";
 export const createNewProject = async (data: ProjectDataTye) => {
   const { user } = await userRequired();
 
+  if (!user) {
+    return {
+      success: false,
+      error: true,
+      message: "User not authenticated",
+      status: 401,
+    };
+  }
+  if (!data?.workspaceId) {
+    return {
+      success: false,
+      error: true,
+      message: "Workspace ID is required",
+      status: 400,
+    };
+  }
+  if (!data?.name) {
+    return {
+      success: false,
+      error: true,
+      message: "Project name is required",
+      status: 400,
+    };
+  }
   const workspace = await db.workspace.findUnique({
     where: { id: data?.workspaceId },
     include: {
@@ -69,7 +93,12 @@ export const postComment = async (
   content: string
 ) => {
   const { user } = await userRequired();
-
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+  if (!workspaceId || !projectId || !content) {
+    throw new Error("Workspace ID, Project ID, and content are required");
+  }
   const isMember = await db.workspaceMember.findUnique({
     where: {
       userId_workspaceId: {

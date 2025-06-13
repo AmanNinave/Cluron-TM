@@ -9,6 +9,15 @@ import { redirect } from "next/navigation";
 export const createUser = async (data: UserDataType) => {
   const { user } = await userRequired();
 
+  if (!user) {
+    return {
+      success: false,
+      error: true,
+      message: "User not authenticated",
+      status: 401,
+    };
+  }
+  // Validate the data using the userSchema
   const validatedData = userSchema.parse(data);
 
   const userData = await db.user.create({
